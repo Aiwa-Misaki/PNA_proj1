@@ -1,7 +1,9 @@
+use clap::builder::Str;
 use clap::{arg, command, Arg, ArgAction, Command};
-
+use kvs::KvStore;
 
 fn main() {
+    let mut kv = KvStore::new();
     let matches = command!() // requires `cargo` feature
         .disable_version_flag(true)
         .version(env!("CARGO_PKG_VERSION"))
@@ -31,19 +33,21 @@ fn main() {
         Some(("set", sub_matches)) => {
             eprintln!("unimplemented");
             panic!();
-            println!(
-                "'kvs set' was used, key is: {:?}, value is: {:?}",
-                sub_matches.get_one::<String>("KEY"),
-                sub_matches.get_one::<String>("VALUE"),
-            )
+            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
+            let value = sub_matches.get_one::<String>("VALUE").unwrap().clone();
+            kv.set(key, value);
         }
         Some(("get", sub_matches)) => {
             eprintln!("unimplemented");
             panic!();
+            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
+            kv.get(key);
         }
         Some(("rm", sub_matches)) => {
             eprintln!("unimplemented");
             panic!();
+            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
+            kv.remove(key);
         }
         _ => unreachable!("Exhausted list of subcommands and subcommand_required prevents `None`"),
     }

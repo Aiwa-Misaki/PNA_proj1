@@ -4,18 +4,24 @@ pub struct KvStore {
     map: HashMap<String, String>,
 }
 
-
 impl KvStore {
-    pub fn new() -> KvStore {
-        todo!()
+    pub fn new() -> Self {
+        println!("new kv store");
+        Self {
+            map: HashMap::new(),
+        }
     }
     pub fn set(&mut self, key: String, value: String) {
-        panic!()
+        self.map.insert(key, value);
     }
     pub fn get(&self, key: String) -> Option<String> {
-        panic!()
+        if self.map.contains_key(&key) {
+            return Some(self.map.get(&key).unwrap().clone());
+        } else {
+            return None;
+        }
     }
     pub fn remove(&mut self, key: String) {
-        panic!()
+        self.map.remove(&key);
     }
 }
