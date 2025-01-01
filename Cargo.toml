@@ -3,7 +3,7 @@ name = "kvs"
 version = "0.1.0"
 authors = ["Aiwa Misaki <zyxwhisper@gmail.com>"]
 description = "A key-value store"
-edition = "2024"
+edition = "2018"
 
 [dependencies]
 predicates = "3.1.3"
