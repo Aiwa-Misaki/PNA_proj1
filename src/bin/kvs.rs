@@ -1,54 +1,37 @@
-use clap::builder::Str;
-use clap::{arg, command, Arg, ArgAction, Command};
+use clap::{Parser, Subcommand};
 use kvs::KvStore;
 
-fn main() {
-    let mut kv = KvStore::new();
-    let matches = command!() // requires `cargo` feature
-        .disable_version_flag(true)
-        .version(env!("CARGO_PKG_VERSION"))
-        .arg(
-            Arg::new("version")
-                .short('V')
-                .long("version")
-                .help("Print version info")
-                .action(ArgAction::SetTrue),
-        )
-        .subcommand_required(false)
-        .subcommand(
-            Command::new("set")
-                .about("set key value")
-                .arg(arg!([KEY]))
-                .arg(arg!([VALUE])),
-        )
-        .subcommand(Command::new("get").about("get value").arg(arg!([KEY])))
-        .subcommand(Command::new("rm").about("rm value").arg(arg!([KEY])))
-        .get_matches();
+#[derive(Parser)]
+#[command(version)]
+#[command(propagate_version = true)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
 
-    if matches.get_flag("version") {
-        println!("kvs {}", env!("CARGO_PKG_VERSION"));
-        return;
-    }
-    match matches.subcommand() {
-        Some(("set", sub_matches)) => {
-            eprintln!("unimplemented");
-            panic!();
-            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
-            let value = sub_matches.get_one::<String>("VALUE").unwrap().clone();
-            kv.set(key, value);
+#[derive(Subcommand)]
+enum Commands {
+    Set { key: String, value: String },
+    Get { key: String },
+    Rm { key: String },
+}
+
+fn main() {
+    let cli = Cli::parse();
+    let mut kv = KvStore::new();
+
+    match &cli.command {
+        Commands::Set { key, value } => {
+            println!("'kvs set' was used, {key}:{value}");
+            kv.set(key.clone(), value.clone());
         }
-        Some(("get", sub_matches)) => {
-            eprintln!("unimplemented");
-            panic!();
-            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
-            kv.get(key);
+        Commands::Get { key } => {
+            println!("'kvs get' was used, {key}");
+            kv.get(key.clone());
         }
-        Some(("rm", sub_matches)) => {
-            eprintln!("unimplemented");
-            panic!();
-            let key = sub_matches.get_one::<String>("KEY").unwrap().clone();
-            kv.remove(key);
+        Commands::Rm { key } => {
+            println!("'kvs rm' was used, {key}");
+            kv.remove(key.clone());
         }
-        _ => unreachable!("Exhausted list of subcommands and subcommand_required prevents `None`"),
     }
 }
